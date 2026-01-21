@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ML Algorithm Flowchart - Interactive</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1000;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .controls {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 200px;
+        }
+        .controls h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #2e7d32;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #45a049;
+        }
+        .btn-secondary {
+            background: #2196f3;
+        }
+        .btn-secondary:hover {
+            background: #0b7dda;
+        }
+        .btn-reset {
+            background: #ff9800;
+        }
+        .btn-reset:hover {
+            background: #e68900;
+        }
+        #diagram-container {
+            width: 100%;
+            height: calc(100vh - 80px);
+            background: white;
+            overflow: hidden;
+            position: relative;
+        }
+        .mermaid-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 400px;
+        }
+        .legend h4 {
+            margin-bottom: 10px;
+            color: #2e7d32;
+            font-size: 14px;
+        }
+        .legend-item {
+            display: inline-block;
+            margin-right: 15px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .legend-color {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .instructions {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.98);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            z-index: 2000;
+            max-width: 500px;
+            display: none;
+        }
+        .instructions.show {
+            display: block;
+        }
+        .instructions h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        .instructions ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        .instructions li {
+            margin: 8px 0;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 30px;
+            text-align: center;
+        }
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            z-index: 3000;
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4caf50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #error-msg {
+            display: none;
+            color: #c62828;
+            background: #ffebee;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 4px;
+            border-left: 4px solid #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Rendering diagram...</p>
+    </div>
+
+    <div id="error-msg"></div>
+
+    <div class="header">
+        <h1>🎯 ML Algorithm Selection Flowchart - Interactive Version</h1>
+        <p>Nova IMS Master's Program | Use mouse wheel to zoom, drag to pan</p>
+    </div>
+
+    <div class="controls">
+        <h3>🎮 Controls</h3>
+        <button class="btn" onclick="zoomIn()">🔍 Zoom In</button>
+        <button class="btn" onclick="zoomOut()">🔍 Zoom Out</button>
+        <button class="btn btn-reset" onclick="resetZoom()">🔄 Reset View</button>
+        <button class="btn btn-secondary" onclick="fitToScreen()">📐 Fit to Screen</button>
+        <button class="btn btn-secondary" onclick="showInstructions()">❓ Help</button>
+        <button class="btn btn-secondary" onclick="downloadSVG()">💾 Download SVG</button>
+    </div>
+
+    <div class="legend">
+        <h4>🎨 Color Legend</h4>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #e1f5e1; border: 2px solid #4caf50;"></span>
+            Supervised
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #e3f2fd; border: 2px solid #2196f3;"></span>
+            Unsupervised
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #fff3e0; border: 2px solid #ff9800;"></span>
+            Ensemble
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #f3e5f5; border: 2px solid #9c27b0;"></span>
+            Neural Nets
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #fff9c4; border: 2px solid #fbc02d;"></span>
+            Decisions
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #fce4ec; border: 2px solid #e91e63;"></span>
+            Reference
+        </div>
+    </div>
+
+    <div class="instructions" id="instructions">
+        <button class="close-btn" onclick="hideInstructions()">×</button>
+        <h3>📖 How to Use</h3>
+        <ul>
+            <li><strong>🖱️ Zoom:</strong> Use mouse wheel or buttons on the right</li>
+            <li><strong>👆 Pan:</strong> Click and drag anywhere on the diagram</li>
+            <li><strong>🎯 Reset:</strong> Click "Reset View" to return to start</li>
+            <li><strong>📐 Fit:</strong> Click "Fit to Screen" to see entire diagram</li>
+            <li><strong>💾 Save:</strong> Click "Download SVG" for high-quality vector file</li>
+        </ul>
+        <h3>🎯 Navigation Tips</h3>
+        <ul>
+            <li>Start at the top: "Do you have LABELED data?"</li>
+            <li>Follow colored paths based on your answers</li>
+            <li>Read algorithm boxes for formulas and properties</li>
+            <li>Check pink reference boxes for metrics and validation</li>
+        </ul>
+        <button class="btn" onclick="hideInstructions()">Got it!</button>
+    </div>
+
+    <div id="diagram-container">
+        <div class="mermaid-wrapper">
+            <pre class="mermaid" id="diagram">
+flowchart TD
+    Start([START: Choose ML Algorithm]) --> Labels{Do you have<br/>LABELED data?}
+    
+    Labels -->|YES - SUPERVISED| Task{What are you<br/>predicting?}
+    Labels -->|NO - UNSUPERVISED| Unsup{What is<br/>your goal?}
+    
+    Task -->|CATEGORY<br/>Classification| ClassSize{How much<br/>data?}
+    
+    ClassSize -->|Small data<br/>Less than 10K| ClassSmall{Special<br/>requirements?}
+    
+    ClassSmall -->|Interpretability| DTClass[Decision Tree Classifier<br/>────────<br/>Gini = 1 - sum pi squared<br/>Entropy = -sum pi log pi<br/>Info Gain = H parent - H split<br/>────────<br/>✓ Highly interpretable<br/>✓ No scaling needed<br/>⚠ High variance]
+    
+    ClassSmall -->|Text data| NaiveBayes[Naive Bayes<br/>────────<br/>P y given X = P X given y times P y / P X<br/>Gaussian NB for continuous<br/>Multinomial NB for text<br/>────────<br/>✓ Very fast<br/>✓ Works with high dimensions<br/>⚠ Assumes independence]
+    
+    ClassSmall -->|Need probabilities| LogReg[Logistic Regression<br/>────────<br/>P y=1 given x = 1 / 1 + exp minus z<br/>Loss = Binary Cross-Entropy<br/>Gradient descent optimization<br/>────────<br/>✓ Outputs probabilities<br/>✓ Interpretable coefficients<br/>⚠ Linear boundary]
+    
+    ClassSmall -->|High-dimensional| LinearSVC[Linear SVC<br/>────────<br/>Decision: f x = w transpose x + b<br/>Hinge Loss = max 0 comma 1 - y f x<br/>Minimize norm w squared + C sum xi<br/>────────<br/>✓ Fast in high-dim<br/>✓ Memory efficient<br/>⚠ Needs scaling]
+    
+    ClassSmall -->|Very small data| KNNClass[K-Nearest Neighbors<br/>────────<br/>Prediction = mode of K neighbors<br/>Distance = sqrt sum xj - xj prime squared<br/>────────<br/>✓ No training needed<br/>✓ Non-parametric<br/>⚠ Slow prediction O nm]
+    
+    ClassSmall -->|Want accuracy| RFClass1[Random Forest Classifier<br/>────────<br/>Ensemble = mode of B trees<br/>Bootstrap ~63 percent unique samples<br/>Random m = sqrt n features<br/>────────<br/>✓ Excellent default<br/>✓ Minimal tuning<br/>✓ Feature importance]
+    
+    ClassSize -->|Medium data<br/>10K-100K| ClassMedium{Balanced<br/>classes?}
+    
+    ClassMedium -->|Yes balanced| XGBClass[XGBoost Classifier<br/>────────<br/>Obj = sum Loss + sum Omega<br/>Regularization Omega = gamma T + lambda/2 sum w squared<br/>Gradient and Hessian optimization<br/>────────<br/>✓ State-of-art performance<br/>✓ Built-in regularization<br/>⚠ Needs tuning]
+    
+    ClassMedium -->|Imbalanced| LogRegWeighted[Logistic Regression Weighted<br/>────────<br/>Weighted Loss with class weights<br/>weight c = n / n classes times n c<br/>────────<br/>✓ Handles imbalance<br/>✓ Calibrated probabilities]
+    
+    ClassSize -->|Large data<br/>More than 100K| ClassLarge{Need<br/>interpretability?}
+    
+    ClassLarge -->|Yes interpret| SGDClass[SGD Classifier<br/>────────<br/>Stochastic Gradient Descent<br/>Update per sample online<br/>Loss options Hinge Log Modified Huber<br/>────────<br/>✓ Very scalable<br/>✓ Online learning<br/>⚠ Needs scaling]
+    
+    ClassLarge -->|No black box ok| NNClass[Neural Network Classifier<br/>────────<br/>Forward z = W a + b comma a = g z<br/>Softmax output P y=k = exp zk / sum exp zj<br/>Backpropagation for gradients<br/>────────<br/>✓ State-of-art for images text<br/>✓ Learns hierarchical features<br/>⚠ Needs large data and GPU]
+    
+    Task -->|QUANTITY<br/>Regression| RegSize{How much<br/>data?}
+    
+    RegSize -->|Small<br/>Less than 1K| RegSmall{Relationship<br/>type?}
+    
+    RegSmall -->|Linear| LinReg[Linear Regression<br/>────────<br/>y hat = b0 + sum bj xj<br/>Loss MSE = 1/m sum y - y hat squared<br/>Solution beta = X transpose X inverse X transpose y<br/>────────<br/>✓ Interpretable<br/>✓ Fast closed-form<br/>✓ Baseline model]
+    
+    RegSmall -->|Curved| PolyReg[Polynomial Regression<br/>────────<br/>y hat = b0 + sum bj xj + sum bij xi xj + ...<br/>Features = n+d factorial / n factorial d factorial<br/>────────<br/>✓ Captures curves<br/>✓ Still linear in transformed space<br/>⚠ Risk overfitting with high degree]
+    
+    RegSmall -->|Need selection| LassoSmall[Lasso L1<br/>────────<br/>Loss = MSE + lambda sum absolute bj<br/>Coordinate Descent algorithm<br/>────────<br/>✓ Feature selection<br/>✓ Sparse models beta exactly 0<br/>✓ Interpretable]
+    
+    RegSmall -->|Correlated features| RidgeSmall[Ridge L2<br/>────────<br/>Loss = MSE + lambda sum bj squared<br/>Solution beta = X transpose X + lambda I inverse X transpose y<br/>────────<br/>✓ Handles multicollinearity<br/>✓ Stable predictions<br/>✓ All features kept]
+    
+    RegSize -->|Medium<br/>1K-100K| RegMedium{Linear or<br/>Non-linear?}
+    
+    RegMedium -->|Linear| ElasticNet[Elastic Net<br/>────────<br/>Loss = MSE + lambda1 sum absolute bj + lambda2 sum bj squared<br/>Combines L1 and L2<br/>────────<br/>✓ Feature selection L1<br/>✓ Handles correlation L2<br/>✓ Best of both worlds]
+    
+    RegMedium -->|Non-linear| RForest[Random Forest Regressor<br/>────────<br/>y hat RF = 1/B sum y hat b<br/>Variance reduction rho sigma squared / B<br/>OOB Error for validation<br/>────────<br/>✓ Reduces overfitting<br/>✓ Robust to noise<br/>✓ Feature importance]
+    
+    RegSize -->|Large<br/>More than 100K| GBoost[Gradient Boosting Regressor<br/>────────<br/>y hat = f0 + sum m eta times hm x<br/>Sequential fm = f m-1 + eta times hm<br/>Residuals rim = yi - f m-1 xi<br/>────────<br/>XGBoost Omega = gamma T + lambda/2 sum wj squared<br/>────────<br/>✓ State-of-art accuracy<br/>✓ Feature importance<br/>⚠ Requires tuning eta M depth]
+    
+    Unsup -->|Find groups<br/>CLUSTERING| Cluster{Know number<br/>of clusters K?}
+    
+    Cluster -->|YES know K| KMeans[K-Means Clustering<br/>────────<br/>Minimize sum k sum i in Ck norm xi - mu k squared<br/>Algorithm Lloyd<br/>1 Initialize K centroids<br/>2 Assign to nearest<br/>3 Update centroids = mean<br/>────────<br/>Silhouette s i = b i - a i / max a i comma b i<br/>────────<br/>✓ Fast scalable O nKd<br/>✓ Spherical clusters<br/>⚠ Must specify K<br/>⚠ Sensitive to initialization]
+    
+    Cluster -->|NO discover K| DBSCAN[DBSCAN<br/>────────<br/>Density-Based Clustering<br/>Parameters epsilon radius MinPts<br/>────────<br/>Core point at least MinPts within epsilon<br/>Border point within epsilon of core<br/>Noise point not core or border<br/>────────<br/>✓ Arbitrary shapes<br/>✓ Detects outliers automatically<br/>✓ No need to specify K<br/>⚠ Sensitive to epsilon and MinPts]
+    
+    Unsup -->|Reduce dimensions<br/>VISUALIZATION| DimRed{What is<br/>the goal?}
+    
+    DimRed -->|Preprocessing<br/>Feature reduction| PCA[PCA Principal Component Analysis<br/>────────<br/>Maximize variance in projection<br/>Covariance Cov = 1/n X transpose X<br/>Eigendecomposition Cov v = lambda v<br/>Project Z = X Wk<br/>────────<br/>Variance explained = sum lambda i / sum all lambda<br/>────────<br/>✓ Fast O min n squared d comma nd squared<br/>✓ Removes correlation<br/>✓ Reduces noise<br/>⚠ Linear only<br/>⚠ Components hard to interpret]
+    
+    DimRed -->|Visualization<br/>2D or 3D| Viz{Preserve what<br/>structure?}
+    
+    Viz -->|Global and local| UMAP[UMAP<br/>────────<br/>Uniform Manifold Approximation<br/>Fuzzy topological graph<br/>Minimize cross-entropy<br/>────────<br/>✓ Preserves global and local<br/>✓ Faster than t-SNE<br/>✓ Can transform new points<br/>✓ Scales to large data]
+    
+    Viz -->|Local only| tSNE[t-SNE<br/>────────<br/>t-Distributed Stochastic Neighbor Embedding<br/>KL divergence KL P Q = sum pij log pij / qij<br/>Student t-distribution in low-dim<br/>────────<br/>✓ Beautiful visualizations<br/>✓ Reveals clusters<br/>⚠ Very slow O n squared<br/>⚠ Cannot transform new data<br/>⚠ Different runs differ]
+    
+    Unsup -->|Find anomalies<br/>OUTLIER DETECTION| Anomaly{Anomaly<br/>type?}
+    
+    Anomaly -->|Global outliers| IForest[Isolation Forest<br/>────────<br/>Anomaly score s x = 2 to minus E h x / c n<br/>Path length h x = avg depth to isolate<br/>────────<br/>Intuition Anomalies easier to isolate<br/>────────<br/>✓ Fast O n log n<br/>✓ Low memory O n<br/>✓ Scales to high-dim<br/>⚠ May miss local anomalies]
+    
+    Anomaly -->|Local anomalies| LOF[Local Outlier Factor<br/>────────<br/>LOF k p = avg density neighbors / density p<br/>Reachability distance<br/>Local reachability density<br/>────────<br/>LOF greater than 1 = outlier lower density<br/>LOF approximately 1 = normal<br/>────────<br/>✓ Detects local outliers<br/>✓ Handles varying densities<br/>⚠ O n squared complexity slow<br/>⚠ Sensitive to k parameter]
+    
+    EvalBox[EVALUATION METRICS<br/>════════════════════<br/>CLASSIFICATION<br/>Accuracy = TP+TN / TP+TN+FP+FN<br/>Precision = TP / TP+FP<br/>Recall = TP / TP+FN<br/>F1 = 2 Prec Rec / Prec+Rec<br/>ROC-AUC Threshold independent<br/>════════════════════<br/>REGRESSION<br/>MAE = 1/n sum absolute y - y hat<br/>MSE = 1/n sum y - y hat squared<br/>RMSE = sqrt MSE<br/>R squared = 1 - sum y-y hat sq / sum y-y bar sq<br/>════════════════════<br/>CLUSTERING<br/>Silhouette Range -1 to 1 higher better<br/>Davies-Bouldin Lower better<br/>Inertia Within-cluster sum squares]
+    
+    CrossValBox[CROSS-VALIDATION<br/>════════════════════<br/>K-FOLD CV<br/>Split into K folds K=5 or 10<br/>Train on K-1 validate on 1<br/>Average performance across K folds<br/>════════════════════<br/>STRATIFIED K-FOLD<br/>Maintains class distribution<br/>Critical for imbalanced data<br/>════════════════════<br/>TIME SERIES CV<br/>NO random shuffling<br/>Training 1 to t<br/>Validation t+1 to t+h<br/>════════════════════<br/>HYPERPARAMETER TUNING<br/>Grid Search all combinations<br/>Random Search sample random<br/>Bayesian Optimization intelligent]
+    
+    BiasVarBox[BIAS-VARIANCE TRADEOFF<br/>════════════════════<br/>Total Error = Bias sq + Variance + Noise<br/>════════════════════<br/>HIGH BIAS Underfitting<br/>Model too simple<br/>High train and test error<br/>Solutions Add features<br/>Increase complexity<br/>Reduce regularization<br/>════════════════════<br/>HIGH VARIANCE Overfitting<br/>Model too complex<br/>Low train high test error<br/>Solutions More data<br/>Regularization L1 L2 Dropout<br/>Feature selection<br/>Early stopping]
+    
+    Start -.-> EvalBox
+    EvalBox -.-> CrossValBox
+    CrossValBox -.-> BiasVarBox
+    
+    classDef supervised fill:#e1f5e1,stroke:#4caf50,stroke-width:2px
+    classDef unsupervised fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    classDef ensemble fill:#fff3e0,stroke:#ff9800,stroke-width:3px
+    classDef neural fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+    classDef reference fill:#fce4ec,stroke:#e91e63,stroke-width:2px
+    
+    class LinReg,PolyReg,RidgeSmall,LassoSmall,ElasticNet supervised
+    class DTClass,NaiveBayes,LogReg,LinearSVC,KNNClass,LogRegWeighted,SGDClass supervised
+    class RFClass1,XGBClass,GBoost ensemble
+    class RForest ensemble
+    class NNClass neural
+    class KMeans,DBSCAN,PCA,tSNE,UMAP,IForest,LOF unsupervised
+    class Start,Labels,Task,Unsup,ClassSize,ClassSmall,ClassMedium,ClassLarge decision
+    class RegSize,RegSmall,RegMedium,Cluster,DimRed,Viz,Anomaly decision
+    class EvalBox,CrossValBox,BiasVarBox reference
+            </pre>
+        </div>
+    </div>
+
+    <script>
+        let panZoomInstance = null;
+        let isInitialized = false;
+
+        // Configure Mermaid BEFORE any rendering
+        mermaid.initialize({
+            startOnLoad: false,  // Manual control
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            securityLevel: 'loose'
+        });
+
+        // Single initialization function
+        async function initializeDiagram() {
+            if (isInitialized) return;
+            
+            try {
+                console.log('Starting diagram initialization...');
+                
+                // Render mermaid
+                await mermaid.run({
+                    querySelector: '.mermaid'
+                });
+                
+                console.log('Mermaid rendered, looking for SVG...');
+                
+                // Wait a bit for DOM update
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Find the SVG
+                const svg = document.querySelector('#diagram svg, .mermaid svg');
+                
+                if (!svg) {
+                    throw new Error('SVG element not found after rendering');
+                }
+                
+                console.log('SVG found, initializing pan-zoom...');
+                
+                // Initialize pan-zoom
+                panZoomInstance = svgPanZoom(svg, {
+                    zoomEnabled: true,
+                    controlIconsEnabled: false,
+                    fit: true,
+                    center: true,
+                    minZoom: 0.1,
+                    maxZoom: 10,
+                    zoomScaleSensitivity: 0.3,
+                    dblClickZoomEnabled: true,
+                    mouseWheelZoomEnabled: true
+                });
+                
+                isInitialized = true;
+                console.log('Initialization complete!');
+                
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                
+                // Show help after a moment
+                setTimeout(showInstructions, 800);
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                document.getElementById('loading').innerHTML = 
+                    '<p style="color: red;">Error loading diagram</p>' +
+                    '<p style="font-size: 12px;">' + error.message + '</p>' +
+                    '<button class="btn" onclick="location.reload()">Retry</button>';
+            }
+        }
+
+        // Control functions
+        function zoomIn() {
+            if (panZoomInstance) panZoomInstance.zoomIn();
+        }
+
+        function zoomOut() {
+            if (panZoomInstance) panZoomInstance.zoomOut();
+        }
+
+        function resetZoom() {
+            if (panZoomInstance) {
+                panZoomInstance.resetZoom();
+                panZoomInstance.resetPan();
+            }
+        }
+
+        function fitToScreen() {
+            if (panZoomInstance) {
+                panZoomInstance.fit();
+                panZoomInstance.center();
+            }
+        }
+
+        function showInstructions() {
+            document.getElementById('instructions').classList.add('show');
+        }
+
+        function hideInstructions() {
+            document.getElementById('instructions').classList.remove('show');
+        }
+
+        function downloadSVG() {
+            const svg = document.querySelector('#diagram svg, .mermaid svg');
+            if (svg) {
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const blob = new Blob([svgData], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'ML_Algorithm_Flowchart.svg';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                alert('✓ SVG downloaded!');
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '+' || e.key === '=') zoomIn();
+            else if (e.key === '-') zoomOut();
+            else if (e.key === '0') resetZoom();
+            else if (e.key === 'f' || e.key === 'F') fitToScreen();
+            else if (e.key === 'h' || e.key === 'H' || e.key === '?') showInstructions();
+            else if (e.key === 'Escape') hideInstructions();
+        });
+
+        // Start when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeDiagram);
+        } else {
+            initializeDiagram();
+        }
+    </script>
+</body>
+</html>
